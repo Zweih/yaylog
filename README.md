@@ -61,4 +61,4 @@ yaylog [-n <number>] [-e] [-a]
 
 ## license
 
-this project is licensed under the MIT license. see [license](license) for details.
+this project is licensed under the MIT license. see [license](LICENSE) for details.
