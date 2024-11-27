@@ -6,6 +6,8 @@ despite the name, it's not limited to `yay` and works with any package manager t
 
 it supports optional filters for explicitly installed packages or dependencies.
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/yaylog.svg)](https://repology.org/project/yaylog/versions)
+
 ## features
 
 - view recently installed packages with timestamps.
