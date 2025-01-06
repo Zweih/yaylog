@@ -22,8 +22,8 @@ because yay is my preferred aur helper and the name has a good flow.
 
 # roadmap
 
-- rewrite in Golang
-- additional filters
+- ~~rewrite in Golang~~ COMPLETE
+- ~~additional filters~~ COMPLETE
 
 ## installation
 
