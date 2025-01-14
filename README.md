@@ -24,6 +24,8 @@ because yay is my preferred aur helper and the name has a good flow.
 
 - ~~rewrite in Golang~~ COMPLETE
 - ~~additional filters~~ COMPLETE
+- list possibly or confirmed stale/abandoned packages 
+
 
 ## installation
 
