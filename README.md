@@ -43,7 +43,7 @@ yay -S yaylog
    ```bash
    go build -o yaylog ./cmd/yaylog
    ```
-3. copy the binary to your system's `$path`:
+3. copy the binary to your system's `$PATH`:
    ```bash
    sudo install -m755 yaylog /usr/bin/yaylog
    ```
