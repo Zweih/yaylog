@@ -25,7 +25,7 @@ because yay is my preferred aur helper and the name has a good flow.
 - ~~rewrite in Golang~~ COMPLETE
 - ~~additional filters~~ COMPLETE
 - list possibly or confirmed stale/abandoned packages
-- sort by size on disk
+- ~~sort by size on disk~~ COMPLETE
 - dependency graph
 
 
@@ -71,6 +71,7 @@ yaylog [options]
 - `--sort <mode>`: sort results by:
   - `date` (default): sort by installation date
   - `alphabetical`: sort alphabetically by package name
+  - `size:asc` / `size:desc`: sort by package size on disk; ascending or descending, respectively
 - `-h`: print help info
 
 ### examples
