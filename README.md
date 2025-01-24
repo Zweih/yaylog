@@ -13,9 +13,9 @@ it supports optional filters for explicitly installed packages or dependencies.
 - view recently installed packages with timestamps
 - filter results by explicitly installed packages
 - filter results by packages installed as dependencies
-- show all installed packages with alignment for readability
 - sort results by installation date or alphabetically
 - filter results by a specific installation date
+- sort results by size on disk
 
 ## why is it called yaylog if it works with other package managers?
 because yay is my preferred aur helper and the name has a good flow.
