@@ -28,6 +28,7 @@ because yay is my preferred aur helper and the name has a good flow.
 - ~~sort by size on disk~~ COMPLETE
 - dependency graph
 - ~~concurrent filtering~~ COMPLETE
+- ~~filter by size on disk~~ COMPLETE
 
 
 ## installation
@@ -69,6 +70,11 @@ yaylog [options]
 - `-e`: show only explicitly installed packages
 - `-d`: show only packages installed as dependencies
 - `--date <YYYY-MM-DD>`: show packages installed on the specified date
+- `--size <filter>`: filter packages by size on disk
+   - size filter examples:
+      - `">10MB"`: show packages larger than 10MB
+      - `"<500KB"`: show packages smaller than 500KB
+  - quotes are required for the filter
 - `--sort <mode>`: sort results by:
   - `date` (default): sort by installation date
   - `alphabetical`: sort alphabetically by package name
@@ -95,6 +101,18 @@ yaylog [options]
 5. show the 15 most recent explicitly installed packages:
    ```bash
    yaylog -en 15
+   ```
+6. show the 20 most recently installed packages larger than 20MB:
+   ```bash
+   yaylog --size ">20MB"
+   ```
+7. show the 10 largest explicitly installed packages:
+   ```bash
+   yaylog -en 10 --sort size:desc
+   ```
+8. show all dependencies smaller than 500KB:
+   ```bash
+   yaylog -ad --size "<500KB"
    ```
 
    **note**: the `-e` flag must be used before the `-n` flag as the n flag consumes the next argument.
