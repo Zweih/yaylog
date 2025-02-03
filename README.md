@@ -20,6 +20,9 @@ it supports optional filters for explicitly installed packages or dependencies.
 ## why is it called yaylog if it works with other package managers?
 because yay is my preferred aur helper and the name has a good flow.
 
+## is it good?
+[yes.](https://news.ycombinator.com/item?id=3067434)
+
 ## roadmap
 
 - ~~rewrite in Golang~~ COMPLETE
