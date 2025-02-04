@@ -36,6 +36,7 @@ because yay is my preferred aur helper and the name has a good flow.
 - ~~concurrent sorting~~ COMPLETE
 - search by text input
 - list package versions
+- remove expac as a dependency
 
 ## installation
 
@@ -46,6 +47,8 @@ yay -S yaylog
 ```
 
 ### building from source + manual installation
+**note**: this packages is specific to arch-based linux distributions
+
 1. clone the repo:
    ```bash
    git clone https://github.com/zweih/yaylog.git
