@@ -25,7 +25,7 @@ this package is compatible with the following distributions:
 - filter results by a specific installation date
 - sort results by size on disk
 
-## why is it called yaylog if it works with other package managers?
+## why is it called yaylog if it works with other AUR helpers?
 because yay is my preferred aur helper and the name has a good flow.
 
 ## is it good?
