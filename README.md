@@ -32,7 +32,8 @@ because yay is my preferred aur helper and the name has a good flow.
 - dependency graph
 - ~~concurrent filtering~~ COMPLETE
 - ~~filter by size on disk~~ COMPLETE
-- progress bar
+- ~~progress bar~~ COMPLETE
+- ~~concurrent sorting~~ COMPLETE
 - search by text input
 
 ## installation
