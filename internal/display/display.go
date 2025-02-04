@@ -3,6 +3,7 @@ package display
 import (
 	"fmt"
 	"os"
+	"sync"
 	"text/tabwriter"
 	"yaylog/internal/pkgdata"
 )
@@ -13,8 +14,47 @@ const (
 	GB = MB * MB
 )
 
+type OutputManager struct {
+	mu             sync.Mutex
+	progressActive bool
+}
+
+var Manager = &OutputManager{}
+
+func (o *OutputManager) Write(msg string) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
+	fmt.Print(msg)
+}
+
+func (o *OutputManager) PrintProgress(phase string, progress int, description string) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
+	o.progressActive = true
+
+	fmt.Print("\r\033[K")
+	fmt.Printf("\r[%s] %d%% - %s", phase, progress, description)
+}
+
+func (o *OutputManager) ClearProgress() {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
+	if o.progressActive {
+		fmt.Print("\r\033[K")
+		o.progressActive = false
+	}
+}
+
 // displays data in tab format
-func PrintTable(pkgs []pkgdata.PackageInfo) {
+func (o *OutputManager) PrintTable(pkgs []pkgdata.PackageInfo) {
+	o.ClearProgress()
+
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
 	fmt.Fprintln(w, "DATE\tNAME\tREASON\tSIZE")
 

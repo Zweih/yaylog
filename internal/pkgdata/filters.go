@@ -3,12 +3,14 @@ package pkgdata
 import (
 	"sync"
 	"time"
-	"yaylog/internal/config"
 )
+
+type Filter func([]PackageInfo) []PackageInfo
 
 type FilterCondition struct {
 	Condition bool
-	Filter    func([]PackageInfo) []PackageInfo
+	Filter    Filter
+	PhaseName string
 }
 
 func FilterExplicit(pkgs []PackageInfo) []PackageInfo {
@@ -67,7 +69,7 @@ func FilterBySize(pkgs []PackageInfo, operator string, sizeInBytes int64) []Pack
 	return filteredPackages
 }
 
-func applyConcurrentFilter(packages []PackageInfo, filterFunc func([]PackageInfo) []PackageInfo) []PackageInfo {
+func applyConcurrentFilter(packages []PackageInfo, filterFunc Filter) []PackageInfo {
 	const chunkSize = 100
 
 	var mu sync.Mutex
@@ -101,46 +103,32 @@ func applyConcurrentFilter(packages []PackageInfo, filterFunc func([]PackageInfo
 	return filteredPackages
 }
 
-func ConcurrentFilters(
-	packages []PackageInfo,
-	dateFilter time.Time,
-	sizeFilter config.SizeFilter,
-	explicitOnly bool,
-	dependenciesOnly bool,
+func ApplyFilters(
+	pkgs []PackageInfo,
+	filters []FilterCondition,
+	reportProgress ProgressReporter,
 ) []PackageInfo {
-	type FilterCondition struct {
-		Condition bool
-		Filter    func([]PackageInfo) []PackageInfo
-	}
-
-	filters := []FilterCondition{
-		{
-			Condition: explicitOnly,
-			Filter:    FilterExplicit,
-		},
-		{
-			Condition: dependenciesOnly,
-			Filter:    FilterDependencies,
-		},
-		{
-			Condition: !dateFilter.IsZero(),
-			Filter: func(pkgs []PackageInfo) []PackageInfo {
-				return FilterByDate(pkgs, dateFilter)
-			},
-		},
-		{
-			Condition: sizeFilter.IsFilter,
-			Filter: func(pkgs []PackageInfo) []PackageInfo {
-				return FilterBySize(pkgs, sizeFilter.Operator, sizeFilter.SizeInBytes)
-			},
-		},
-	}
+	totalFilters := len(filters)
+	currentFilter := 0
 
 	for _, f := range filters {
 		if f.Condition {
-			packages = applyConcurrentFilter(packages, f.Filter)
+			if reportProgress != nil {
+				reportProgress(currentFilter, totalFilters, f.PhaseName)
+			}
+
+			pkgs = applyConcurrentFilter(pkgs, f.Filter)
+
+			if reportProgress != nil {
+				currentFilter++
+				reportProgress(currentFilter, totalFilters, f.PhaseName)
+			}
 		}
 	}
 
-	return packages
+	if reportProgress != nil {
+		reportProgress(totalFilters, totalFilters, "All filters completed")
+	}
+
+	return pkgs
 }
