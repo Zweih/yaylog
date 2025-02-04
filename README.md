@@ -8,6 +8,14 @@ it supports optional filters for explicitly installed packages or dependencies.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/yaylog.svg)](https://repology.org/project/yaylog/versions)
 
+
+this package is compatible with the following distributions:
+ - arch linux
+ - manjaro
+ - garuda linux
+ - endeavourOS
+ - the 50 other arch-based distros, as long as it has pacman installed 
+
 ## features
 
 - view recently installed packages with timestamps
