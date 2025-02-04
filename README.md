@@ -35,6 +35,7 @@ because yay is my preferred aur helper and the name has a good flow.
 - ~~progress bar~~ COMPLETE
 - ~~concurrent sorting~~ COMPLETE
 - search by text input
+- list package versions
 
 ## installation
 
