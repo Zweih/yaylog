@@ -8,6 +8,9 @@ it supports optional filters for explicitly installed packages or dependencies.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/yaylog.svg)](https://repology.org/project/yaylog/versions)
 
+downloads since 2/4/2025:
+
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Zweih/yaylog/total?style=for-the-badge&logo=archlinux&color=%20%231793d0)
 
 this package is compatible with the following distributions:
  - arch linux
