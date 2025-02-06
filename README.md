@@ -1,10 +1,10 @@
 # yaylog
 
-`yaylog` is a simple CLI util, written in **Go** / **Golang**, for arch and arch-based linux distros to list recently installed packages.
+`yaylog` is a CLI util, written in **Go** / **Golang**, for arch and arch-based linux distros to sort/filter installed packages.
 
-despite the name, it's not limited to `yay` and works with any package manager that logs package installations to `/var/log/pacman.log`. so it can be used with `pacman`, `yay`, `paru`, `aura`, and even `yaourt` if you're somehow still using it.
+despite the name, it's not limited to `yay` and works with any package manager that uses ALPM; so it can be used with `pacman`, `yay`, `paru`, `aura`, `pamac`, and even `yaourt` if you're somehow still using it.
 
-it supports optional filters for explicitly installed packages or dependencies.
+`yaylog` supports optional filters/sorting for install date, package name, install reason (explicit/dependency), and size on disk.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/yaylog.svg)](https://repology.org/project/yaylog/versions)
 
@@ -28,7 +28,7 @@ this package is compatible with the following distributions:
 - sort results by size on disk
 
 ## why is it called yaylog if it works with other AUR helpers?
-because yay is my preferred aur helper and the name has a good flow.
+because yay is my preferred AUR helper and the name has a good flow.
 
 ## is it good?
 [yes.](https://news.ycombinator.com/item?id=3067434)
