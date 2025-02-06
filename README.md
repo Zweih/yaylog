@@ -47,6 +47,8 @@ because yay is my preferred AUR helper and the name has a good flow.
 - search by text input
 - list package versions
 - remove expac as a dependency
+- add CI to release binaries
+- remove go as a dependency
 
 ## installation
 
