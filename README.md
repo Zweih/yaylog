@@ -43,11 +43,15 @@ because yay is my preferred AUR helper and the name has a good flow.
 - ~~concurrent filtering~~ COMPLETE
 - ~~filter by size on disk~~ COMPLETE
 - ~~progress bar~~ COMPLETE
+- channel-based aggregation
 - ~~concurrent sorting~~ COMPLETE
 - search by text input
 - list package versions
+- filter by date range
+- concurrent file reading
 - remove expac as a dependency
-- add CI to release binaries
+- ~~optional full timestamp~~ COMPLETE 
+- ~~add CI to release binaries~~ COMPLETE
 - remove go as a dependency
 
 ## installation
