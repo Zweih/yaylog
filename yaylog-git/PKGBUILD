@@ -2,7 +2,7 @@
 pkgname=yaylog-git
 pkgver=3.0.0
 pkgrel=1
-pkgdesc="A CLI utility to list installed packages with filtering, written in Go."
+pkgdesc="A CLI utility to list installed packages with filtering and sorting, written in Go."
 arch=("any")
 url="https://github.com/Zweih/yaylog"
 license=("MIT")
