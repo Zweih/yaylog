@@ -49,10 +49,10 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [ ] list package versions
 - [ ] filter by date range
 - [ ] concurrent file reading
-- [ ] remove expac as a dependency
+- [x] remove expac as a dependency
 - [x] optional full timestamp 
 - [x] add CI to release binaries
-- [ ] remove go as a dependency
+- [x] remove go as a dependency
 
 ## installation
 
