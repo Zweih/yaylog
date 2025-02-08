@@ -1,5 +1,5 @@
 # Maintainer: Fernando Nunez <me@fernandonunez.io>
-pkgname=yaylog
+pkgname=yaylog-git
 pkgver=2.2.4
 pkgrel=1
 pkgdesc="A CLI utility to list recently installed packages with filtering, written in Go."
