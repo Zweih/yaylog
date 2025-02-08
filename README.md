@@ -35,24 +35,24 @@ because yay is my preferred AUR helper and the name has a good flow.
 
 ## roadmap
 
-- ~~rewrite in Golang~~ COMPLETE
-- ~~additional filters~~ COMPLETE
-- list possibly or confirmed stale/abandoned packages
-- ~~sort by size on disk~~ COMPLETE
-- dependency graph
-- ~~concurrent filtering~~ COMPLETE
-- ~~filter by size on disk~~ COMPLETE
-- ~~progress bar~~ COMPLETE
-- channel-based aggregation
-- ~~concurrent sorting~~ COMPLETE
-- search by text input
-- list package versions
-- filter by date range
-- concurrent file reading
-- remove expac as a dependency
-- ~~optional full timestamp~~ COMPLETE 
-- ~~add CI to release binaries~~ COMPLETE
-- remove go as a dependency
+- [x] rewrite in golang
+- [x] additional filters
+- [ ] list possibly or confirmed stale/abandoned packages
+- [x] sort by size on disk
+- [ ] dependency graph
+- [x] concurrent filtering
+- [x] filter by size on disk
+- [x] asynchronous progress bar
+- [ ] channel-based aggregation
+- [x] concurrent sorting
+- [ ] search by text input
+- [ ] list package versions
+- [ ] filter by date range
+- [ ] concurrent file reading
+- [ ] remove expac as a dependency
+- [x] optional full timestamp 
+- [x] add CI to release binaries
+- [ ] remove go as a dependency
 
 ## installation
 
