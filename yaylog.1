@@ -4,38 +4,54 @@
 yaylog \- List and filter recently installed packages on Arch-based systems.
 .SH SYNOPSIS
 .B yaylog
-.RI [ \-n <number> ] [ \-e ] [ \-a ] [ \-d ] [ \-\-date <YYYY-MM-DD> ] [ \-\-sort <mode> ] [ \-h ]
+.RI [ \-n | \-\-number <number> ] [ \-e | \-\-explicit ] [ \-a | \-\-all ] [ \-d | \-\-dependencies ] [ \-\-date <YYYY-MM-DD> ] [ \-\-size <filter> ] [ \-\-sort <mode> ] [ \-\-full-timestamp ] [ \-h | \-\-help ]
 .SH DESCRIPTION
 .B yaylog
-is a CLI utility for Arch and Arch-based Linux distributions to list and filter recently installed packages. It works with any package manager that logs installations to
-.B /var/log/pacman.log ,
+is a standalone CLI utility for Arch and Arch-based Linux distributions to list and filter recently installed packages. It works with any package manager based on pacman
 including
-.B pacman ,
-.B yay ,
+.B yay,
+.B paru,
 and others.
 
-The utility provides options to filter by explicitly installed packages, dependencies, or installations on a specific date. It also supports sorting results by date or alphabetically.
+The utility provides options to filter by explicitly installed packages, dependencies, installation dates, and package sizes. It also supports sorting results by date, alphabetical order, or size.
 
 .SH OPTIONS
 .TP
-.B \-n <number>
+.B \-n, \-\-number <number>
 Display the specified number of recent packages (default: 20). Ignored if
 .B \-a
+or
+.B \-\-all
 is used.
 .TP
-.B \-e
+.B \-e, \-\-explicit
 Show only explicitly installed packages.
 .TP
-.B \-d
+.B \-d, \-\-dependencies
 Show only packages installed as dependencies.
 .TP
-.B \-a
+.B \-a, \-\-all
 Show all installed packages, ignoring the
 .B \-n
+or
+.B \-\-number
 option.
 .TP
 .B \-\-date <YYYY-MM-DD>
 Show packages installed on the specified date.
+.TP
+.B \-\-size <filter>
+Filter results by package size. Specify a comparison operator and size, such as:
+.IP
+.B ">10MB"
+: Show packages larger than 10MB.
+.IP
+.B "<500KB"
+: Show packages smaller than 500KB.
+.IP
+Valid units are B (bytes), KB, MB, or GB. If no operator is specified,
+.B ">"
+is assumed by default.
 .TP
 .B \-\-sort <mode>
 Sort results by the specified mode. Available modes:
@@ -47,27 +63,15 @@ Sort results by the specified mode. Available modes:
 : Sort alphabetically by package name.
 .IP
 .B size:asc
-: Sort by size, in ascending order.
+: Sort by package size in ascending order.
 .IP
 .B size:desc
-: Sort by size, in descending order.
+: Sort by package size in descending order.
 .TP
-.B \-\-size <filter>
-Filter results by size. Specify a comparison operator and size, such as:
-.IP
-.B ">10MB"
-: Show packages larger than 10MB.
-.IP
-.B "<500KB"
-: Show packages smaller than 500KB.
-.IP
-Size units can be specified as B (bytes), KB, MB, or GB. Filtering by size does not automatically sort the results; use
-.B \-\-sort size:asc
-or
-.B \-\-sort size:desc
-to explicitly sort by size if desired.
+.B \-\-full-timestamp
+Display the full timestamp (date and time) of package installations instead of just the date.
 .TP
-.B \-h
+.B \-h, \-\-help
 Display help information.
 
 .SH EXAMPLES
@@ -76,39 +80,55 @@ Show the last 10 installed packages:
 .PP
 .EX
 yaylog -n 10
+yaylog --number 10
 .EE
 .TP
 Show all explicitly installed packages:
 .PP
 .EX
 yaylog -ae
+yaylog --all --explicit
 .EE
 .TP
 Show only dependencies installed on a specific date:
 .PP
 .EX
 yaylog -d --date 2024-12-25
+yaylog --dependencies --date 2024-12-25
 .EE
 .TP
 Show all packages sorted alphabetically:
 .PP
 .EX
 yaylog -a --sort alphabetical
+yaylog --all --sort alphabetical
 .EE
 .TP
 Show the 15 most recent explicitly installed packages:
 .PP
 .EX
 yaylog -en 15
+yaylog --explicit --number 15
 .EE
-
-.SH NOTES
-.B yaylog
-requires the
-.B expac
-utility to function correctly. Ensure
-.B expac
-is installed and properly configured on your system.
+.TP
+Show packages larger than 50MB:
+.PP
+.EX
+yaylog --size ">50MB"
+.EE
+.TP
+Show packages smaller than 100MB and sort them alphabetically:
+.PP
+.EX
+yaylog --size "<100MB" --sort alphabetical
+.EE
+.TP
+Show all packages sorted by size in descending order:
+.PP
+.EX
+yaylog -a --sort size:desc
+yaylog --all --sort size:desc
+.EE
 
 .SH AUTHOR
 Written by Fernando Nunez <me@fernandonunez.io>.
@@ -125,4 +145,4 @@ Report bugs to the GitHub repository:
 
 .SH SEE ALSO
 .B pacman(8),
-.B expac(1)
+.B yay(8)
