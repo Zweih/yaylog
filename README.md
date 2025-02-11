@@ -46,10 +46,10 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [ ] channel-based aggregation
 - [x] concurrent sorting
 - [ ] search by text input
-- [ ] list package versions
+- [x] list package versions
 - [ ] filter by date range
-- [ ] concurrent file reading
-- [x] remove expac as a dependency
+- [x] concurrent file reading
+- [x] remove expac as a dependency (3x speed boost)
 - [x] optional full timestamp 
 - [x] add CI to release binaries
 - [x] remove go as a dependency
