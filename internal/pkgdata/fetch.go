@@ -18,6 +18,7 @@ const (
 	fieldInstallDate = "%INSTALLDATE%"
 	fieldSize        = "%SIZE%"
 	fieldReason      = "%REASON%"
+	fieldVersion     = "%VERSION%"
 	pacmanDbPath     = "/var/lib/pacman/local"
 )
 
@@ -118,7 +119,7 @@ func parseDescFile(descPath string) (PackageInfo, error) {
 		line := strings.TrimSpace(scanner.Text())
 
 		switch line {
-		case fieldName, fieldInstallDate, fieldSize, fieldReason:
+		case fieldName, fieldInstallDate, fieldSize, fieldReason, fieldVersion:
 			currentField = line
 		default:
 			if err := applyField(&pkg, currentField, line); err != nil {
@@ -158,6 +159,8 @@ func applyField(pkg *PackageInfo, field string, value string) error {
 		}
 
 		pkg.Timestamp = time.Unix(installDate, 0)
+	case fieldVersion:
+		pkg.Version = value
 	case fieldSize:
 		size, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
