@@ -48,7 +48,7 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [ ] search by text input
 - [x] list package versions
 - [ ] filter by date range
-- [x] concurrent file reading
+- [x] concurrent file reading (2x speed boost)
 - [x] remove expac as a dependency (3x speed boost)
 - [x] optional full timestamp 
 - [x] add CI to release binaries
@@ -94,6 +94,7 @@ yaylog [options]
 - `-a`: show all installed packages (ignores `-n`)
 - `-e`: show only explicitly installed packages
 - `-d`: show only packages installed as dependencies
+- `-v`: show column for current version of packages
 - `--date <YYYY-MM-DD>`: show packages installed on the specified date
 - `--size <filter>`: filter packages by size on disk
    - size filter examples:
