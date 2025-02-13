@@ -53,6 +53,7 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [x] optional full timestamp 
 - [x] add CI to release binaries
 - [x] remove go as a dependency
+- [ ] filter by range of size on disk
 
 ## installation
 
