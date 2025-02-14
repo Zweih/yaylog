@@ -1,6 +1,7 @@
 package pkgdata
 
 import (
+	"strings"
 	"sync"
 	"time"
 )
@@ -63,6 +64,18 @@ func FilterBySize(pkgs []PackageInfo, operator string, sizeInBytes int64) []Pack
 			if pkg.Size < sizeInBytes {
 				filteredPackages = append(filteredPackages, pkg)
 			}
+		}
+	}
+
+	return filteredPackages
+}
+
+func FilterByName(pkgs []PackageInfo, searchTerm string) []PackageInfo {
+	var filteredPackages []PackageInfo
+
+	for _, pkg := range pkgs {
+		if strings.Contains(pkg.Name, searchTerm) {
+			filteredPackages = append(filteredPackages, pkg)
 		}
 	}
 
