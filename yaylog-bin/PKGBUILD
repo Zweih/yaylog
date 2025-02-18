@@ -1,13 +1,13 @@
 # Maintainer: Fernando Nunez <me@fernandonunez.io>
-pkgname=yaylog
+pkgname=yaylog-bin
 pkgver=3.0.0
 pkgrel=1
 pkgdesc="A CLI utility to list installed packages with filtering and sorting, written in Go."
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://github.com/Zweih/yaylog"
 license=("MIT")
-provides=('yaylog')
-conflicts=('yaylog-git')
+provides=("yaylog")
+conflicts=("yaylog" "yaylog-git")
 
 release_url="${url}/releases/download/v${pkgver}/yaylog"
 ext=".tar.gz"
@@ -23,6 +23,6 @@ sha256sums_armv7h=('b6e91f3244e1857a55407840c766fad08f02f9e7a49a6ab29c46ef1ac13d
 package() {
   tar -xzf "$srcdir/yaylog-${CARCH}${ext}" -C "$srcdir"
 
-  install -Dm755 "$srcdir/yaylog-${CARCH}" "$pkgdir/usr/bin/yaylog"
-  install -Dm644 "$srcdir/yaylog.1" "$pkgdir/usr/share/man/man1/yaylog.1"
+  install -Dm755 "${srcdir}/yaylog-${CARCH}" "$pkgdir/usr/bin/yaylog"
+  install -Dm644 "${srcdir}/yaylog.1" "$pkgdir/usr/share/man/man1/yaylog.1"
 }

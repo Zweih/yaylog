@@ -10,7 +10,7 @@ makedepends=("go" "git")
 provides=("yaylog")
 conflicts=("yaylog" "yaylog-bin")
 source=("git+https://github.com/Zweih/yaylog.git")
-sha256sums=('SKIP')
+sha256sums=("SKIP")
 
 _binaryname="yaylog"
 
