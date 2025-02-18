@@ -26,13 +26,3 @@ package() {
   install -Dm755 "$srcdir/yaylog-${CARCH}" "$pkgdir/usr/bin/yaylog"
   install -Dm644 "$srcdir/yaylog.1" "$pkgdir/usr/share/man/man1/yaylog.1"
 }
-
-post_upgrade() {
-  previous_version=$1
-  new_version=$2
-
-  if [[ $(vercmp "$previous_version" "3.0.0") -lt 0 ]]; then
-    echo "==> yaylog has been upgraded to a precompiled binary as of version 3.0.0."
-    echo "==> If you prefer to build from source, please install the yaylog-git package."
-  fi
-}
