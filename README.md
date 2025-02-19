@@ -43,7 +43,7 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [x] concurrent filtering
 - [x] filter by size on disk
 - [x] asynchronous progress bar
-- [ ] channel-based aggregation
+- [x] channel-based aggregation
 - [x] concurrent sorting
 - [x] search by text input
 - [x] list package versions
@@ -67,7 +67,7 @@ if you prefer to install from source using the AUR, use the `yaylog` package ins
 
 for the latest (unstable) version from git w/ the AUR, use `yaylog-git`*.  
 
-***note**: this is not reccomended for most users 
+***note**: this is not recommended for most users 
 
 
 ### building from source + manual installation
