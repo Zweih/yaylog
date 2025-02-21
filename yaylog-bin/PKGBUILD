@@ -10,7 +10,7 @@ license=("MIT")
 provides=("yaylog")
 conflicts=("yaylog" "yaylog-git")
 
-release_url="${url}/releases/download/v${pkgver}/yaylog"
+release_url="${url}/releases/download/v${pkgver}/yaylog-v${pkgver}"
 ext=".tar.gz"
 
 source_x86_64+=("${release_url}-x86_64${ext}")
@@ -22,7 +22,7 @@ sha256sums_aarch64=('917bf684cb78058d3ba82d6f834dc0307ef4d2a874627b89fbd814ba300
 sha256sums_armv7h=('70976e7c0d3adf4adf33371426c35d875ddfe5b8835d2511aa15d91db697413f')
 
 package() {
-  tar -xzf "$srcdir/yaylog-${CARCH}${ext}" -C "$srcdir"
+  tar -xzf "$srcdir/yaylog-v${pkgver}-${CARCH}${ext}" -C "$srcdir"
 
   install -Dm755 "${srcdir}/yaylog-${CARCH}" "$pkgdir/usr/bin/yaylog"
   install -Dm644 "${srcdir}/yaylog.1" "$pkgdir/usr/share/man/man1/yaylog.1"

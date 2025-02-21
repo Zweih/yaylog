@@ -20,8 +20,11 @@ get_checksum() {
   grep "$1" "$SHA_FILE" | awk '{print $1}'
 }
 
+pkgver=$(grep '^pkgver=' "$PKGBUILD_FILE" | cut -d'=' -f2)
+version="v${pkgver}"
+
 for arch in x86_64 aarch64 armv7h; do
-  bin_file="${PKG_NAME}-${arch}.${EXT}"
+  bin_file="${PKG_NAME}-${version}-${arch}.${EXT}"
   checksum_arch=$(get_checksum "${bin_file}")
 
   if [[ -n "$checksum_arch" ]]; then
@@ -32,8 +35,6 @@ for arch in x86_64 aarch64 armv7h; do
   fi
 done
 
-pkgver=$(grep '^pkgver=' "$PKGBUILD_FILE" | cut -d'=' -f2)
-version="v${pkgver}"
 source_file="${PKG_NAME}-${version}.${EXT}"
 checksum_source=$(get_checksum "${source_file}")
 
