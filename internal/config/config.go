@@ -7,14 +7,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"yaylog/internal/consts"
 
 	"github.com/spf13/pflag"
-)
-
-const (
-	KB = 1024
-	MB = KB * KB
-	GB = MB * MB
 )
 
 type SizeFilter struct {
@@ -37,11 +32,12 @@ type Config struct {
 	DisableProgress   bool
 	ExplicitOnly      bool
 	DependenciesOnly  bool
+	NoDefaults        bool
 	DateFilter        DateFilter
 	SizeFilter        SizeFilter
 	NameFilter        string
 	SortBy            string
-	OptionalColumns   []string
+	ColumnNames       []string
 }
 
 func ParseFlags(args []string) (Config, error) {
@@ -49,7 +45,6 @@ func ParseFlags(args []string) (Config, error) {
 	var allPackages bool
 	var showHelp bool
 	var showFullTimestamp bool
-	var showVersion bool
 	var disableProgress bool
 	var explicitOnly bool
 	var dependenciesOnly bool
@@ -57,13 +52,14 @@ func ParseFlags(args []string) (Config, error) {
 	var sizeFilter string
 	var nameFilter string
 	var sortBy string
+	var columnsInput string
+	var addColumnsInput string
 
 	pflag.IntVarP(&count, "number", "n", 20, "Number of packages to show")
 
 	pflag.BoolVarP(&allPackages, "all", "a", false, "Show all packages (ignores -n)")
 	pflag.BoolVarP(&showHelp, "help", "h", false, "Display help")
 	pflag.BoolVarP(&showFullTimestamp, "full-timestamp", "", false, "Show full timestamp instead of just the date")
-	pflag.BoolVarP(&showVersion, "", "v", false, "Show column for package versions")
 	pflag.BoolVarP(&disableProgress, "no-progress", "", false, "Force suppress progress output")
 	pflag.BoolVarP(&explicitOnly, "explicit", "e", false, "Show only explicitly installed packages")
 	pflag.BoolVarP(&dependenciesOnly, "dependencies", "d", false, "Show only packages installed as dependencies")
@@ -72,6 +68,8 @@ func ParseFlags(args []string) (Config, error) {
 	pflag.StringVar(&sizeFilter, "size", "", "Filter packages by size. Supports ranges (e.g., 10MB:20GB), exact matches (e.g., 5MB), and open-ended values (e.g., :2GB or 500KB:)")
 	pflag.StringVar(&nameFilter, "name", "", "Filter packages by name (or similar name)")
 	pflag.StringVar(&sortBy, "sort", "date", "Sort packages by: 'date', 'alphabetical', 'size:desc', 'size:asc'")
+	pflag.StringVar(&columnsInput, "columns", "", "Comma-separated list of columns to display (overrides defaults)")
+	pflag.StringVar(&addColumnsInput, "add-columns", "", "Comma-separated list of columns to add to defaults")
 
 	if err := pflag.CommandLine.Parse(args); err != nil {
 		return Config{}, fmt.Errorf("Error parsing flags: %v", err)
@@ -91,6 +89,11 @@ func ParseFlags(args []string) (Config, error) {
 		return Config{}, err
 	}
 
+	columnsParsed, err := parseColumns(columnsInput, addColumnsInput)
+	if err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		Count:             count,
 		AllPackages:       allPackages,
@@ -103,7 +106,7 @@ func ParseFlags(args []string) (Config, error) {
 		SizeFilter:        sizeFilterParsed,
 		NameFilter:        nameFilter,
 		SortBy:            sortBy,
-		OptionalColumns:   parseOptionalColumns(showVersion),
+		ColumnNames:       columnsParsed,
 	}, nil
 }
 
@@ -151,7 +154,7 @@ func parseDateMatch(dateInput string, defaultDate time.Time) (time.Time, error) 
 }
 
 func parseValidDate(dateInput string) (time.Time, error) {
-	parsedDate, err := time.Parse("2006-01-02", dateInput)
+	parsedDate, err := time.Parse(consts.DateOnlyFormat, dateInput)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -213,11 +216,11 @@ func parseSizeInBytes(valueInput string, unitInput string) (sizeInBytes int64, e
 
 	switch unit {
 	case "KB":
-		sizeInBytes = int64(value * KB)
+		sizeInBytes = int64(value * consts.KB)
 	case "MB":
-		sizeInBytes = int64(value * MB)
+		sizeInBytes = int64(value * consts.MB)
 	case "GB":
-		sizeInBytes = int64(value * GB)
+		sizeInBytes = int64(value * consts.GB)
 	case "B":
 		sizeInBytes = int64(value)
 	default:
@@ -227,12 +230,65 @@ func parseSizeInBytes(valueInput string, unitInput string) (sizeInBytes int64, e
 	return sizeInBytes, nil
 }
 
-func parseOptionalColumns(showVersion bool) (optionalColumns []string) {
-	if showVersion {
-		optionalColumns = append(optionalColumns, "version")
+func parseColumns(columnsInput string, addColumnsInput string) ([]string, error) {
+	if columnsInput != "" && addColumnsInput != "" {
+		return nil, fmt.Errorf("cannot use --columns and --add-columns together. Use --columns to fully define the columns you want")
 	}
 
-	return optionalColumns
+	var specifiedColumnsRaw string
+	var columns []string
+
+	switch {
+	case columnsInput != "":
+		specifiedColumnsRaw = columnsInput
+	case addColumnsInput != "":
+		specifiedColumnsRaw = addColumnsInput
+		fallthrough
+	default:
+		columns = []string{consts.DATE, consts.NAME, consts.REASON, consts.SIZE}
+	}
+
+	specifiedColumns, err := validateColumns(strings.ToLower(specifiedColumnsRaw))
+	if err != nil {
+		return nil, err
+	}
+
+	columns = append(columns, specifiedColumns...)
+
+	if len(columns) < 1 {
+		return nil, fmt.Errorf("no columns selected: use --columns to specify at least one column")
+	}
+
+	return columns, nil
+}
+
+func validateColumns(columnInput string) ([]string, error) {
+	if columnInput == "" {
+		return []string{}, nil
+	}
+
+	validColumns := map[string]bool{
+		consts.DATE:    true,
+		consts.NAME:    true,
+		consts.REASON:  true,
+		consts.SIZE:    true,
+		consts.VERSION: true,
+		consts.DEPENDS: true,
+	}
+
+	var columns []string
+
+	for _, column := range strings.Split(columnInput, ",") {
+		cleanColumn := strings.TrimSpace(column)
+
+		if !validColumns[strings.TrimSpace(column)] {
+			return nil, fmt.Errorf("%s is not a valid column", cleanColumn)
+		}
+
+		columns = append(columns, cleanColumn)
+	}
+
+	return columns, nil
 }
 
 func PrintHelp() {
@@ -254,21 +310,39 @@ func PrintHelp() {
 	fmt.Println("                         :YYYY-MM-DD      (installed up to the date)")
 	fmt.Println("                         YYYY-MM-DD:YYYY-MM-DD  (installed within a date range)")
 
-	fmt.Println("  --size <filter>      Filter packages by size. Supports:")
+	fmt.Println("  --size <filter>      Filter packages by size on disk. Supports:")
 	fmt.Println("                         10MB       (exactly 10MB)")
 	fmt.Println("                         5GB:       (5GB and larger)")
 	fmt.Println("                         :20KB      (up to 20KB)")
 	fmt.Println("                         1.5MB:2GB  (between 1.5MB and 2GB)")
 
-	fmt.Println("  --name <search-term> Filter packages by name (substring match).")
-	fmt.Println("                         Example: 'gtk' matches 'gtk3', 'libgtk', etc.")
+	fmt.Println("  --name <search-term> Filter packages by name (substring match)")
+	fmt.Println("                         Example: 'gtk' matches 'gtk3', 'libgtk', etc")
+
+	fmt.Println("\nColumn Options:")
+	fmt.Println("  --columns <list>     Comma-separated list of columns to display (overrides defaults)")
+	fmt.Println("  --add-columns <list> Comma-separated list of columns to add to defaults")
+
+	fmt.Println("\nAvailable Columns:")
+	fmt.Println("  date      - Installation date of the package")
+	fmt.Println("  name      - Package name")
+	fmt.Println("  reason    - Installation reason (explicit/dependency)")
+	fmt.Println("  size      - Package size on disk")
+	fmt.Println("  version   - Installed package version")
+	fmt.Println("  depends   - List of dependencies (output can be long)")
+
+	fmt.Println("\nCaveat:")
+	fmt.Println("  The 'depends' column output can be lengthy. It's recommended to use `less` for better readability:")
+	fmt.Println("  yaylog --columns name,depends | less")
 
 	fmt.Println("\nExamples:")
-	fmt.Println("  yaylog --size 50MB --date 2024-12-28       # Show 50MB packages installed on Dec 28, 2024")
-	fmt.Println("  yaylog --size 100MB: --date :2024-06-30    # Show packages >100MB installed up to June 30, 2024")
-	fmt.Println("  yaylog --size 10MB:1GB --date 2023-01-01:  # Packages 10MB-1GB installed after Jan 1, 2023")
-	fmt.Println("  yaylog --sort size:desc --date 2024-01-01: # Sort by largest, installed on/after Jan 1, 2024")
-	fmt.Println("  yaylog --size :50MB --sort alphabetical    # Sort small packages alphabetically")
-	fmt.Println("  yaylog --name python                       # Show installed packages containing 'python'")
+	fmt.Println("  yaylog --size 50MB --date 2024-12-28             # Show 50MB packages installed on Dec 28, 2024")
+	fmt.Println("  yaylog --size 100MB: --date :2024-06-30          # Show packages >100MB installed up to June 30, 2024")
+	fmt.Println("  yaylog --size 10MB:1GB --date 2023-01-01:        # Packages 10MB-1GB installed after Jan 1, 2023")
+	fmt.Println("  yaylog --sort size:desc --date 2024-01-01:       # Sort by largest, installed on/after Jan 1, 2024")
+	fmt.Println("  yaylog --size :50MB --sort alphabetical          # Sort small packages alphabetically")
+	fmt.Println("  yaylog --name python                             # Show installed packages containing 'python'")
 	fmt.Println("  yaylog --name gtk --size 5MB: --date 2023-01-01: # Packages with 'gtk', >5MB, installed after Jan 1, 2023")
+	fmt.Println("  yaylog --columns name,version,size               # Show packages with name, version, and size")
+	fmt.Println("  yaylog --columns name,depends | less             # Show package names and dependencies with less for readability")
 }
