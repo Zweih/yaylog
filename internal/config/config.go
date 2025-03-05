@@ -29,11 +29,11 @@ type Config struct {
 	AllPackages       bool
 	ShowHelp          bool
 	OutputJson        bool
+	HasNoHeaders      bool
 	ShowFullTimestamp bool
 	DisableProgress   bool
 	ExplicitOnly      bool
 	DependenciesOnly  bool
-	NoDefaults        bool
 	DateFilter        DateFilter
 	SizeFilter        SizeFilter
 	NameFilter        string
@@ -43,14 +43,17 @@ type Config struct {
 
 func ParseFlags(args []string) (Config, error) {
 	var count int
+
 	var allPackages bool
 	var hasAllColumns bool
 	var showHelp bool
 	var outputJson bool
+	var hasNoHeaders bool
 	var showFullTimestamp bool
 	var disableProgress bool
 	var explicitOnly bool
 	var dependenciesOnly bool
+
 	var dateFilter string
 	var sizeFilter string
 	var nameFilter string
@@ -64,6 +67,7 @@ func ParseFlags(args []string) (Config, error) {
 	pflag.BoolVarP(&hasAllColumns, "all-columns", "", false, "Show all available columns/fields in the output (overrides defaults)")
 	pflag.BoolVarP(&showHelp, "help", "h", false, "Display help")
 	pflag.BoolVarP(&outputJson, "json", "", false, "Output results in JSON format")
+	pflag.BoolVarP(&hasNoHeaders, "no-headers", "", false, "Hide headers for columns (useful for scripts/automation)")
 	pflag.BoolVarP(&showFullTimestamp, "full-timestamp", "", false, "Show full timestamp instead of just the date")
 	pflag.BoolVarP(&disableProgress, "no-progress", "", false, "Force suppress progress output")
 	pflag.BoolVarP(&explicitOnly, "explicit", "e", false, "Show only explicitly installed packages")
@@ -104,6 +108,7 @@ func ParseFlags(args []string) (Config, error) {
 		AllPackages:       allPackages,
 		ShowHelp:          showHelp,
 		OutputJson:        outputJson,
+		HasNoHeaders:      hasNoHeaders,
 		ShowFullTimestamp: showFullTimestamp,
 		DisableProgress:   disableProgress,
 		ExplicitOnly:      explicitOnly,
@@ -328,6 +333,7 @@ func PrintHelp() {
 	fmt.Println("\nColumn Options:")
 	fmt.Println("  --columns <list>     Comma-separated list of columns to display (overrides defaults)")
 	fmt.Println("  --add-columns <list> Comma-separated list of columns to add to defaults")
+	fmt.Println("  --no-headers         Omit column headers in output (useful for scripts and automation)")
 
 	fmt.Println("\nAvailable Columns:")
 	fmt.Println("  date         - Installation date of the package")
