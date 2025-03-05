@@ -14,6 +14,17 @@ type FilterCondition struct {
 	PhaseName string
 }
 
+func FilterRequiredBy(pkg PackageInfo, target string) bool {
+	for _, requiredByPkgName := range pkg.RequiredBy {
+		matches := packageNameRegex.FindStringSubmatch(requiredByPkgName)
+		if len(matches) >= 2 && matches[1] == target {
+			return true
+		}
+	}
+
+	return false
+}
+
 func FilterExplicit(pkg PackageInfo) bool {
 	return pkg.Reason == "explicit"
 }
