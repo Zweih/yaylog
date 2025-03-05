@@ -1,13 +1,15 @@
 package display
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+	"text/tabwriter"
 	"yaylog/internal/consts"
 	"yaylog/internal/pkgdata"
 )
 
-type displayContext struct {
+type tableContext struct {
 	DateFormat string
 }
 
@@ -22,34 +24,56 @@ var columnHeaders = map[string]string{
 	consts.Provides:   "PROVIDES",
 }
 
-func GetColumnJsonValues(pkg pkgdata.PackageInfo, columnNames []string) pkgdata.PackageInfoJson {
-	filteredPackage := pkgdata.PackageInfoJson{}
+// displays data in tab format
+func (o *OutputManager) renderTable(
+	pkgs []pkgdata.PackageInfo,
+	columnNames []string,
+	showFullTimestamp bool,
+	hasNoHeaders bool,
+) {
+	o.clearProgress()
 
-	for _, columnName := range columnNames {
-		switch columnName {
-		case consts.Date:
-			filteredPackage.Timestamp = &pkg.Timestamp
-		case consts.Name:
-			filteredPackage.Name = pkg.Name
-		case consts.Reason:
-			filteredPackage.Reason = pkg.Reason
-		case consts.Size:
-			filteredPackage.Size = pkg.Size // return in bytes for json
-		case consts.Version:
-			filteredPackage.Version = pkg.Version
-		case consts.Depends:
-			filteredPackage.Depends = pkg.Depends
-		case consts.RequiredBy:
-			filteredPackage.RequiredBy = pkg.RequiredBy
-		case consts.Provides:
-			filteredPackage.Provides = pkg.Provides
-		}
+	dateFormat := consts.DateOnlyFormat
+	if showFullTimestamp {
+		dateFormat = consts.DateTimeFormat
 	}
 
-	return filteredPackage
+	ctx := tableContext{DateFormat: dateFormat}
+
+	var buffer bytes.Buffer
+	w := tabwriter.NewWriter(&buffer, 0, 8, 2, ' ', 0)
+
+	if !hasNoHeaders {
+		renderHeaders(w, columnNames)
+	}
+
+	for _, pkg := range pkgs {
+		renderRows(w, pkg, columnNames, ctx)
+	}
+
+	w.Flush()
+	o.write(buffer.String())
 }
 
-func GetColumnTableValue(pkg pkgdata.PackageInfo, columnName string, ctx displayContext) string {
+func renderHeaders(w *tabwriter.Writer, columnNames []string) {
+	headers := make([]string, len(columnNames))
+	for i, columnName := range columnNames {
+		headers[i] = columnHeaders[columnName]
+	}
+
+	fmt.Fprintln(w, strings.Join(headers, "\t"))
+}
+
+func renderRows(w *tabwriter.Writer, pkg pkgdata.PackageInfo, columnNames []string, ctx tableContext) {
+	row := make([]string, len(columnNames))
+	for i, columnName := range columnNames {
+		row[i] = getTableValue(pkg, columnName, ctx)
+	}
+
+	fmt.Fprintln(w, strings.Join(row, "\t"))
+}
+
+func getTableValue(pkg pkgdata.PackageInfo, columnName string, ctx tableContext) string {
 	switch columnName {
 	case consts.Date:
 		return formatDate(pkg, ctx)
@@ -73,7 +97,7 @@ func GetColumnTableValue(pkg pkgdata.PackageInfo, columnName string, ctx display
 }
 
 // use time as parameter
-func formatDate(pkg pkgdata.PackageInfo, ctx displayContext) string {
+func formatDate(pkg pkgdata.PackageInfo, ctx tableContext) string {
 	return pkg.Timestamp.Format(ctx.DateFormat)
 }
 
