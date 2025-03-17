@@ -22,7 +22,7 @@ this package is compatible with the following distributions:
 
 ## features
 
-- list installed packages with date/timestamps, dependencies, provisions, requirements, size on disk, conflicts, and version
+- list installed packages with date/timestamps, dependencies, provisions, requirements, size on disk, conflicts, architecture, and version
 - filter by explicitly installed packages
 - filter by packages installed as dependencies
 - filter by packages required by specified packages
@@ -30,6 +30,7 @@ this package is compatible with the following distributions:
 - filter by packages that provide specified packages
 - filter by packages that conflict with specific packages
 - filter by a specific installation date or date range
+- filter by packages built with specified architectures
 - filter by package size or size range
 - filter by package name (substring match)
 - sort by installation date, alphabetically, or by size on disk
@@ -82,10 +83,12 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [ ] key/value output
 - [x] list of packages for package filters
 - [x] config dependency injection for testing
-- [ ] more extensive testing
+- [ ] required-by count sort
 - [x] metaflag for all filters
 - [ ] XML output
 - [ ] short-args for filters
+- [x] architecture filter
+- [ ] dependency count sort
 
 ## installation
 
@@ -141,6 +144,8 @@ yaylog [options]
   - `--filter name=firefox`     -> filter by package names that contain `firefox`
   - `--filter required-by=vlc`  -> filter by packages required by `vlc`
   - `--filter depends=glibc`    -> filter by packages that depend on `glibc`
+  - `--filter conflicts=sdl2`   -> filter by packages that conflict with `sdl2`
+  - `--filter arch=x86_64`      -> filter by packages that are built for `x86_64` CPUs
 - `--sort <mode>`: sort results by:
   - `date` (default) - sort by installation date
   - `alphabetical` - sort alphabetically by package name
@@ -170,6 +175,7 @@ short-flag filters and long-flag filters can be combined.
 | **depends** | `depends=<package>` / <br> `depends=<package-1>,<package-2>,<etc>` | filters by packages that have the specified packages as dependencies |
 | **provides** | `provides=<package>` / <br> `provides=<package-1>,<package-2>,<etc>` | filters by package that provide the specified packages/libraries |
 | **conflicts** | `conflicts=<package>` / <br> `conflicts=<package-1,<package-2>,<etc>` | filters by packages that conflict with the specified packages |
+| **architecture** | `arch=<architecture>` / <br> `arch=<architecture-1>,<architecture-2>,<etc>` | filters by packages that are built for the specified architectures. <br> **Note**: "any" is a separate architecture category. If this not is behavior that you prefer/expect, please open an issue. |
 | **name** | `name=<package>` / <br> `name=<package-1>,<package-2>,<etc>` |  filters by package name (substring match) |
 | **installation reason** | `reason=explicit` / `reason=dependencies` | filters packages by installation reason: explicitly installed or installed as a dependency |
 | **size** | `size=<value>` | filters by package size on disk. supports exact values (`10MB`), ranges (`10MB:1GB`), and open-ended ranges (`:500KB`, `1GB:`) |
@@ -395,4 +401,8 @@ are treated as separate parameters.
 31. show packages that conflict with `linuxqq`:
    ```bash
    yaylog -f conflicts=linuxqq
+   ```
+32. show packages that are built for the `aarch64` CPU architecture or any architecture (non-CPU-specific):
+   ```bash
+   yaylog -f arch=aarch64,any
    ```
