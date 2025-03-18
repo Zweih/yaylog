@@ -8,19 +8,13 @@ import (
 	"yaylog/internal/consts"
 )
 
-type DateFilter struct {
-	StartDate time.Time
-	EndDate   time.Time
-	IsExact   bool
-}
-
-func parseDateFilter(dateFilterInput string) (DateFilter, error) {
+func parseDateFilter(dateFilterInput string) (RangeSelector, error) {
 	if dateFilterInput == "" {
-		return DateFilter{}, nil
+		return RangeSelector{}, nil
 	}
 
 	if dateFilterInput == ":" {
-		return DateFilter{}, fmt.Errorf("invalid date filter: ':' must be accompanied by a date")
+		return RangeSelector{}, fmt.Errorf("invalid date filter: ':' must be accompanied by a date")
 	}
 
 	pattern := `^(\d{4}-\d{2}-\d{2})?(?::(\d{4}-\d{2}-\d{2})?)?$`
@@ -29,27 +23,29 @@ func parseDateFilter(dateFilterInput string) (DateFilter, error) {
 	isExact := !strings.Contains(dateFilterInput, ":")
 
 	if matches == nil {
-		return DateFilter{}, fmt.Errorf("invalid date filter format: %q", dateFilterInput)
+		return RangeSelector{}, fmt.Errorf("invalid date filter format: %q", dateFilterInput)
 	}
 
-	startDate, err := parseDateMatch(matches[1], time.Time{})
+	start, err := parseDateMatch(matches[1], 0)
 	if err != nil {
-		return DateFilter{}, err
+		return RangeSelector{}, err
 	}
 
-	endDate, err := parseDateMatch(matches[2], time.Now())
+	end, err := parseDateMatch(matches[2], time.Now().Unix())
 	if err != nil {
-		return DateFilter{}, err
+		return RangeSelector{}, err
 	}
 
-	return DateFilter{
-		startDate,
-		endDate,
+	end += int64(time.Hour * 24 / time.Second)
+
+	return RangeSelector{
+		start,
+		end,
 		isExact,
 	}, nil
 }
 
-func parseDateMatch(dateInput string, defaultDate time.Time) (time.Time, error) {
+func parseDateMatch(dateInput string, defaultDate int64) (int64, error) {
 	if dateInput == "" {
 		return defaultDate, nil
 	}
@@ -57,18 +53,18 @@ func parseDateMatch(dateInput string, defaultDate time.Time) (time.Time, error) 
 	return parseValidDate(dateInput)
 }
 
-func parseValidDate(dateInput string) (time.Time, error) {
+func parseValidDate(dateInput string) (int64, error) {
 	parsedDate, err := time.Parse(consts.DateOnlyFormat, dateInput)
 	if err != nil {
-		return time.Time{}, err
+		return 0, err
 	}
 
-	return parsedDate, nil
+	return parsedDate.Unix(), nil
 }
 
-func validateDateFilter(dateFilter DateFilter) error {
-	if !dateFilter.StartDate.IsZero() && !dateFilter.EndDate.IsZero() {
-		if dateFilter.StartDate.After(dateFilter.EndDate) {
+func validateDateFilter(dateFilter RangeSelector) error {
+	if dateFilter.Start > 0 && dateFilter.End > 0 {
+		if dateFilter.Start > dateFilter.End {
 			return fmt.Errorf("Error invalid date range. The start date cannot be after the end date")
 		}
 	}

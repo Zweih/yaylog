@@ -8,12 +8,11 @@ import (
 )
 
 func (o *OutputManager) renderJson(pkgs []pkgdata.PackageInfo, fields []consts.FieldType) {
-	filteredPackages := make([]pkgdata.PackageInfoJson, len(pkgs))
-	for i, pkg := range pkgs {
-		filteredPackages[i] = getJsonValues(pkg, fields)
+	if isAllFields, uniqueFields := getUniqueFields(fields); isAllFields {
+		pkgs = selectJsonFields(pkgs, uniqueFields)
 	}
 
-	jsonOutput, err := json.MarshalIndent(filteredPackages, "", "  ")
+	jsonOutput, err := json.MarshalIndent(pkgs, "", "  ")
 	if err != nil {
 		o.writeLine(fmt.Sprintf("Error genereating JSON output: %v", err))
 	}
@@ -21,13 +20,40 @@ func (o *OutputManager) renderJson(pkgs []pkgdata.PackageInfo, fields []consts.F
 	o.writeLine(string(jsonOutput))
 }
 
-func getJsonValues(pkg pkgdata.PackageInfo, fields []consts.FieldType) pkgdata.PackageInfoJson {
-	filteredPackage := pkgdata.PackageInfoJson{}
+// quick check to verify if we should select fields at all
+func getUniqueFields(fields []consts.FieldType) (bool, []consts.FieldType) {
+	fieldSet := make(map[consts.FieldType]bool, len(fields))
+	for _, field := range fields {
+		fieldSet[field] = true
+	}
+
+	uniqueFields := make([]consts.FieldType, 0, len(fieldSet))
+	for field := range fieldSet {
+		uniqueFields = append(uniqueFields, field)
+	}
+
+	return len(fieldSet) != len(consts.ValidFields), uniqueFields
+}
+
+func selectJsonFields(
+	pkgs []pkgdata.PackageInfo,
+	fields []consts.FieldType,
+) []pkgdata.PackageInfo {
+	filteredPackages := make([]pkgdata.PackageInfo, len(pkgs))
+	for i, pkg := range pkgs {
+		filteredPackages[i] = getJsonValues(pkg, fields)
+	}
+
+	return filteredPackages
+}
+
+func getJsonValues(pkg pkgdata.PackageInfo, fields []consts.FieldType) pkgdata.PackageInfo {
+	filteredPackage := pkgdata.PackageInfo{}
 
 	for _, field := range fields {
 		switch field {
 		case consts.FieldDate:
-			filteredPackage.Timestamp = &pkg.Timestamp
+			filteredPackage.Timestamp = pkg.Timestamp
 		case consts.FieldName:
 			filteredPackage.Name = pkg.Name
 		case consts.FieldReason:
