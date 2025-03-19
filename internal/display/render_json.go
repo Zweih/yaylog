@@ -1,6 +1,7 @@
 package display
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"yaylog/internal/consts"
@@ -12,12 +13,16 @@ func (o *OutputManager) renderJson(pkgs []pkgdata.PackageInfo, fields []consts.F
 		pkgs = selectJsonFields(pkgs, uniqueFields)
 	}
 
-	jsonOutput, err := json.MarshalIndent(pkgs, "", "  ")
-	if err != nil {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.SetEscapeHTML(false) // disable escaping of characters like `<`, `>`, perhaps this should be a user defined option
+	encoder.SetIndent("", "  ")
+
+	if err := encoder.Encode(pkgs); err != nil {
 		o.writeLine(fmt.Sprintf("Error genereating JSON output: %v", err))
 	}
 
-	o.writeLine(string(jsonOutput))
+	o.writeLine(buffer.String())
 }
 
 // quick check to verify if we should select fields at all
@@ -72,6 +77,8 @@ func getJsonValues(pkg pkgdata.PackageInfo, fields []consts.FieldType) pkgdata.P
 			filteredPackage.Conflicts = pkg.Conflicts
 		case consts.FieldArch:
 			filteredPackage.Arch = pkg.Arch
+		case consts.FieldLicense:
+			filteredPackage.License = pkg.License
 		}
 	}
 
