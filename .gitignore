@@ -3,3 +3,4 @@ yaylog-git/pkg/
 yaylog-git/yaylog/
 src-bundle
 .env
+/bin/
