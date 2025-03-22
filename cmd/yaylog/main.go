@@ -26,7 +26,7 @@ func mainWithConfig(configProvider config.ConfigProvider) error {
 		return err
 	}
 
-	pkgs := fetchPackages()
+	pkgPtrs := fetchPackages()
 
 	isInteractive := term.IsTerminal(int(os.Stdout.Fd())) && !cfg.DisableProgress
 	var wg sync.WaitGroup
@@ -38,44 +38,45 @@ func mainWithConfig(configProvider config.ConfigProvider) error {
 	}
 
 	for _, phase := range pipelinePhases {
-		pkgs, err = phase.Run(cfg, pkgs)
+		pkgPtrs, err = phase.Run(cfg, pkgPtrs)
 		if err != nil {
 			return err
 		}
 
-		if len(pkgs) == 0 {
+		if len(pkgPtrs) == 0 {
 			out.WriteLine("No packages to display.")
 			return nil
 		}
 	}
 
-	pkgs = trimPackagesLen(pkgs, cfg)
-	renderOutput(pkgs, cfg)
+	pkgPtrs = trimPackagesLen(pkgPtrs, cfg)
+
+	renderOutput(pkgPtrs, cfg)
 	return nil
 }
 
-func fetchPackages() []pkgdata.PkgInfo {
-	pkgs, err := pkgdata.FetchPackages()
+func fetchPackages() []*pkgdata.PkgInfo {
+	pkgPtrs, err := pkgdata.FetchPackages()
 	if err != nil {
 		out.WriteLine(fmt.Sprintf("Warning: Some packages may be missing due to corrupted package database: %v", err))
 	}
 
-	return pkgs
+	return pkgPtrs
 }
 
 func trimPackagesLen(
-	pkgs []pkgdata.PkgInfo,
+	pkgPtrs []*pkgdata.PkgInfo,
 	cfg config.Config,
-) []pkgdata.PkgInfo {
-	if cfg.Count > 0 && !cfg.AllPackages && len(pkgs) > cfg.Count {
-		cutoffIdx := len(pkgs) - cfg.Count
-		pkgs = pkgs[cutoffIdx:]
+) []*pkgdata.PkgInfo {
+	if cfg.Count > 0 && !cfg.AllPackages && len(pkgPtrs) > cfg.Count {
+		cutoffIdx := len(pkgPtrs) - cfg.Count
+		pkgPtrs = pkgPtrs[cutoffIdx:]
 	}
 
-	return pkgs
+	return pkgPtrs
 }
 
-func renderOutput(pkgs []pkgdata.PkgInfo, cfg config.Config) {
+func renderOutput(pkgs []*pkgdata.PkgInfo, cfg config.Config) {
 	if cfg.OutputJson {
 		out.RenderJson(pkgs, cfg.Fields)
 		return
