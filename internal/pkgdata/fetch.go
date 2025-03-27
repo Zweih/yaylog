@@ -1,14 +1,14 @@
 package pkgdata
 
 import (
-	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -116,34 +116,50 @@ func parseDescFile(descPath string) (*PkgInfo, error) {
 
 	defer file.Close()
 
+	// the average desc file is 103.13 lines, reading the entire file into memory is more efficient than using bufio.Scanner
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
 	var pkg PkgInfo
 	var currentField string
+	start := 0
+	end := 0
+	length := len(data)
 
-	scanner := bufio.NewScanner(file)
+	for end <= length {
+		if end == length || data[end] == '\n' {
+			line := string(bytes.TrimSpace(data[start:end]))
 
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
+			switch line {
+			case fieldName, fieldInstallDate, fieldSize, fieldReason,
+				fieldVersion, fieldArch, fieldLicense, fieldUrl:
+				currentField = line
 
-		switch line {
-		case fieldName,
-			fieldInstallDate,
-			fieldSize,
-			fieldReason,
-			fieldVersion,
-			fieldDepends,
-			fieldProvides,
-			fieldConflicts,
-			fieldArch,
-			fieldLicense,
-			fieldUrl:
-			currentField = line
-		case "":
-			currentField = "" // reset if line is blank
-		default:
-			if err := applyField(&pkg, currentField, line); err != nil {
-				return nil, fmt.Errorf("error reading desc file %s: %w", descPath, err)
+			case fieldDepends, fieldProvides, fieldConflicts:
+				currentField = line
+				block, next := collectBlockBytes(data, end+1)
+
+				applyMultiLineField(&pkg, currentField, block)
+				end = next
+				start = next
+
+				continue
+
+			case "":
+				currentField = ""
+
+			default:
+				if err := applySingleLineField(&pkg, currentField, line); err != nil {
+					return nil, fmt.Errorf("error reading desc file %s: %w", descPath, err)
+				}
 			}
+
+			start = end + 1
 		}
+
+		end++
 	}
 
 	if pkg.Name == "" {
@@ -157,7 +173,31 @@ func parseDescFile(descPath string) (*PkgInfo, error) {
 	return &pkg, nil
 }
 
-func applyField(pkg *PkgInfo, field string, value string) error {
+func collectBlockBytes(data []byte, start int) ([]string, int) {
+	var block []string
+	i := start
+
+	for i < len(data) {
+		j := i
+
+		for j < len(data) && data[j] != '\n' {
+			j++
+		}
+
+		line := bytes.TrimSpace(data[i:j])
+
+		if len(line) == 0 {
+			break
+		}
+
+		block = append(block, string(line))
+		i = j + 1
+	}
+
+	return block, i
+}
+
+func applySingleLineField(pkg *PkgInfo, field string, value string) error {
 	switch field {
 	case fieldName:
 		pkg.Name = value
@@ -188,16 +228,6 @@ func applyField(pkg *PkgInfo, field string, value string) error {
 
 		pkg.Size = size
 
-	case fieldDepends:
-		// use this if we ever need to separate the package name from its dependencies re := regexp.MustCompile(`^([^<>=]+)`)
-		pkg.Depends = append(pkg.Depends, value)
-
-	case fieldProvides:
-		pkg.Provides = append(pkg.Provides, value)
-
-	case fieldConflicts:
-		pkg.Conflicts = append(pkg.Conflicts, value)
-
 	case fieldArch:
 		pkg.Arch = value
 
@@ -212,4 +242,80 @@ func applyField(pkg *PkgInfo, field string, value string) error {
 	}
 
 	return nil
+}
+
+func applyMultiLineField(pkg *PkgInfo, field string, lines []string) {
+	switch field {
+	case fieldDepends:
+		pkg.Depends = parseRelations(lines)
+	case fieldProvides:
+		pkg.Provides = parseRelations(lines)
+	case fieldConflicts:
+		pkg.Conflicts = parseRelations(lines)
+	}
+}
+
+func parseRelations(block []string) []Relation {
+	relations := make([]Relation, 0, len(block))
+
+	for _, line := range block {
+		relations = append(relations, parseRelation(line))
+	}
+
+	return relations
+}
+
+func parseRelation(input string) Relation {
+	opStart := 0
+
+	for i := range input {
+		switch input[i] {
+		case '=', '<', '>':
+			opStart = i
+			goto parseOp
+		}
+	}
+
+	return Relation{Name: input}
+
+parseOp:
+	name := input[:opStart]
+	opEnd := opStart + 1
+
+	if opEnd < len(input) {
+		switch input[opEnd] {
+		case '=', '<', '>':
+			opEnd++
+		}
+	}
+
+	operator := stringToOperator(input[opStart:opEnd])
+	var version string
+
+	if opEnd < len(input) {
+		version = input[opEnd:]
+	}
+
+	return Relation{
+		Name:     name,
+		Operator: operator,
+		Version:  version,
+	}
+}
+
+func stringToOperator(operatorInput string) RelationOp {
+	switch operatorInput {
+	case "=":
+		return OpEqual
+	case "<":
+		return OpLess
+	case "<=":
+		return OpLessEqual
+	case ">":
+		return OpGreater
+	case ">=":
+		return OpGreaterEqual
+	default:
+		return OpNone
+	}
 }
