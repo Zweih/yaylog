@@ -109,7 +109,7 @@ because yay is my preferred AUR helper and the name has a good flow.
 - [x] architecture query
 - [x] optimize query order (4% speed boost)
 - [ ] dependency count sort
-- [ ] license query
+- [x] license query
 - [ ] optional dependency field
 - [x] improve sorting efficiency (8% speed boost)
 - [ ] package base field
@@ -289,8 +289,8 @@ are treated as separate parameters.
   ```
 - all options that take an argument can also be used in the `--<flag>=<argument>` format:
   ```bash
-  yaylog -w size=100MB:1GB -w date=:2024-06-30 --limit=100
-  yaylog -w name=gtk -O=alphabetical
+  yaylog --select-add=name --limit=100
+  yaylog -s=date,name,version -O=name
   ```
   boolean flags can also be explicitly set using `--<flag>=true` or `--<flag>=false`:
   ```bash
@@ -298,7 +298,7 @@ are treated as separate parameters.
   ```
   string arguments can also be surrounded with quotes or double-quotes:
   ```bash
-  yaylog --order="alphabetical" -w name="vim"
+  yaylog --order="name" -w name="vim"
   ```
 
   this can be useful for scripts and automation where you might want to avoid any and all ambiguity.
@@ -326,7 +326,7 @@ are treated as separate parameters.
    ```
  4. show all packages sorted alphabetically by name
    ```bash
-   yaylog -a -O name
+   yaylog -aO name
    ```
  5. search for packages that contain a GPL license
    ```bash
