@@ -1,12 +1,12 @@
 # yaylog (archived)
 
-This project has been **renamed to [`qp`](https://github.com/Zweih/qp)** (short for *query packages*).
+This project has been **renamed to [`qp`](https://github.com/Zweih/qp)** (for *query packages*).
 
-The codebase, history, and all features are the same — only the name has changed.
+The codebase, history, and all features are the same - only the name has changed.
 
 ---
 
-## ℹ️ Why does this repo still exist?
+## Why does this repo still exist?
 
 This repository remains online **only to prevent broken AUR downloads and source links** (like `yaylog.tar.gz`) from failing for users who haven't yet updated.
 
@@ -14,7 +14,7 @@ Please switch to [`qp`](https://github.com/Zweih/qp) for all development, releas
 
 ---
 
-## 📦 New Repository
+## New Repository
 
 **→ [`https://github.com/Zweih/qp`](https://github.com/Zweih/qp)**
 
