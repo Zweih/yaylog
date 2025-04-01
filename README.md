@@ -13,7 +13,7 @@ Please switch to [`qp`](https://github.com/Zweih/qp) for all development, releas
 
 ## New Repo
 
-[`https://github.com/Zweih/qp`](https://github.com/Zweih/qp)
+[https://github.com/Zweih/qp](https://github.com/Zweih/qp)
 
 Be sure to update your remotes if you've cloned this repo:
 
