@@ -1,13 +1,14 @@
 # Maintainer: Fernando Nunez <me@fernandonunez.io>
 pkgname=yaylog-bin
 pkgver=3.41.0
-pkgrel=1
-pkgdesc="A CLI utility to list installed packages with filtering and sorting, written in Go."
+pkgrel=2
+pkgdesc="(DEPRECATED) This package has been renamed to 'qp'. Please install 'qp' instead."
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://github.com/Zweih/yaylog"
 license=("MIT")
 provides=("yaylog")
 conflicts=("yaylog" "yaylog-git")
+install='yaylog.install'
 
 release_url="${url}/releases/download/v${pkgver}/yaylog-v${pkgver}"
 ext=".tar.gz"
